@@ -1,0 +1,117 @@
+openapi: 3.1.0
+info:
+  title: VeilSwap Crypto Payment Gateway API
+  version: 1.0.0
+  description: >
+    Privacy-preserving crypto payment gateway, Arbitrum DEX quote router (0x v2 + InfinityCore),
+    and EIP-5564 stealth settlement API with HMAC-SHA256 idempotent webhooks.
+servers:
+  - url: /api
+    description: VeilSwap Backend Gateway
+security:
+  - ApiKeyAuth: []
+paths:
+  /swap/quote:
+    post:
+      summary: Fetch 0x AllowanceHolder v2 / InfinityCore quote
+      description: Proxies 0x Swap API v2 server-side so ZERO_X_API_KEY is never exposed in browser bundles.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [chainId, sellToken, buyToken, sellAmountHuman, sellDecimals, taker]
+              properties:
+                chainId:
+                  type: integer
+                  enum: [42161, 421614, 31337]
+                sellToken:
+                  type: string
+                buyToken:
+                  type: string
+                sellAmountHuman:
+                  type: string
+                sellDecimals:
+                  type: integer
+                taker:
+                  type: string
+      responses:
+        "200":
+          description: Swap quote payload with AllowanceHolder calldata
+  /gateway/intents:
+    get:
+      summary: List payment intents
+      responses:
+        "200":
+          description: Array of payment intents
+    post:
+      summary: Create an idempotent crypto payment intent
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amountExpected, tokenSymbol, recipientAddress]
+              properties:
+                amountExpected:
+                  type: string
+                tokenSymbol:
+                  type: string
+                  enum: [USDC, ETH, ARB, WBTC]
+                recipientAddress:
+                  type: string
+                settlementMode:
+                  type: string
+                  enum: [stealth, smart_account, direct]
+                chainId:
+                  type: integer
+                  enum: [42161, 421614, 31337]
+                expiresInSeconds:
+                  type: integer
+                webhookUrl:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        "201":
+          description: Payment intent created
+  /gateway/intents/{id}/reconcile:
+    post:
+      summary: Reconcile received on-chain amount (handles paid, underpaid, overpaid, expired)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [receivedAmount]
+              properties:
+                receivedAmount:
+                  type: string
+                txHash:
+                  type: string
+                confirmations:
+                  type: integer
+      responses:
+        "200":
+          description: Updated payment intent state and HMAC webhook dispatch record
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-gateway-key

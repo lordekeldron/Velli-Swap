@@ -1,0 +1,15 @@
+# VeilSwap Protocol
+> Privacy-focused Arbitrum DEX, EIP-5564 Stealth Smart Account Vault, Noir ZK Proof of Innocence, and Crypto Payment Gateway.
+
+## Integration Endpoints
+- OpenAPI 3.1 Spec: /openapi.yaml
+- Agent Security Rules: /AGENTS.md
+- TypeScript SDK: sdk/veilpay-sdk.ts
+- TypeScript MCP Server: mcp/server.ts
+
+## Core Endpoints
+- POST /api/swap/quote — Server-side proxy for 0x AllowanceHolder v2 quotes (Arbitrum One 42161, Arbitrum Sepolia 421614, Anvil 31337).
+- POST /api/gateway/intents — Idempotent payment intent creation.
+- POST /api/gateway/intents/:id/reconcile — Reconciles partial (underpaid), exact (paid), excess (overpaid), or expired settlements and dispatches HMAC-SHA256 webhooks.
+- POST /api/stealth/derive — Derives EIP-5564 ephemeral stealth address from stealth meta-address.
+- POST /api/zk/poi/prove — Generates Noir Proof of Innocence witness and verifies association-set membership.

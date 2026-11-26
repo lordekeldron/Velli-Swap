@@ -1,0 +1,6 @@
+{
+  "name": "VeilSwap Protocol",
+  "description": "Privacy-focused Arbitrum DEX, EIP-5564 Stealth Smart Account Vault, ZK Proof of Innocence, Crypto Payment Gateway, MCP Dev Terminal, and Private Architect Agent.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
